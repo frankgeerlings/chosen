@@ -385,6 +385,19 @@ class Chosen extends AbstractChosen
   single_deselect_control_build: ->
     @selected_item.find("span").first().after "<abbr class=\"search-choice-close\"></abbr>" if @allow_single_deselect and @selected_item.find("abbr").length < 1
 
+  value_matches_search_terms: (text, regex) ->
+    if regex.test text
+      return true
+    else if text.indexOf(" ") >= 0 or text.indexOf("[") == 0
+      #TODO: replace this substitution of /\[\]/ with a list of characters to skip.
+      parts = text.replace(/\[|\]/g, "").split(" ")
+      if parts.length
+        for part in parts
+          if regex.test part
+            return true
+
+    return false
+
   winnow_results: ->
     this.no_results_clear()
     
@@ -404,23 +417,18 @@ class Chosen extends AbstractChosen
           result_id = option.dom_id
           result = $("#" + result_id)
           
-          if regex.test option.html
+          if @value_matches_search_terms(option.html, regex) || @value_matches_search_terms(option.group_label, regex)
             found = true
             results += 1
-          else if option.html.indexOf(" ") >= 0 or option.html.indexOf("[") == 0
-            #TODO: replace this substitution of /\[\]/ with a list of characters to skip.
-            parts = option.html.replace(/\[|\]/g, "").split(" ")
-            if parts.length
-              for part in parts
-                if regex.test part
-                  found = true
-                  results += 1
 
           if found
             if searchText.length
               startpos = option.html.search zregex
-              text = option.html.substr(0, startpos + searchText.length) + '</em>' + option.html.substr(startpos + searchText.length)
-              text = text.substr(0, startpos) + '<em>' + text.substr(startpos)
+              if startpos >= 0
+                text = option.html.substr(0, startpos + searchText.length) + '</em>' + option.html.substr(startpos + searchText.length)
+                text = text.substr(0, startpos) + '<em>' + text.substr(startpos)
+              else
+                text = option.html
             else
               text = option.html
             
