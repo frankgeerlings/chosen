@@ -47,10 +47,10 @@ class Chosen extends AbstractChosen
     @container.addClass( "chzn-container-" + (if @is_multiple then "multi" else "single") )
     @dropdown = @container.find('div.chzn-drop').first()
     
-    dd_top = @container.height()
+    dd_top = @container.height() + @container.position().top
     dd_width = (@f_width - get_side_border_padding(@dropdown))
     
-    @dropdown.css({"width": dd_width  + "px", "top": dd_top + "px"})
+    @dropdown.css({"width": dd_width  + "px"})
 
     @search_field = @container.find('input').first()
     @search_results = @container.find('ul.chzn-results').first()
@@ -234,8 +234,8 @@ class Chosen extends AbstractChosen
       if @result_single_selected
         this.result_do_highlight( @result_single_selected )
 
-    dd_top = if @is_multiple then @container.height() else (@container.height() - 1)
-    @dropdown.css {"top":  dd_top + "px", "left":0}
+    dd_top = @container.height() + @container.offset().top
+    @dropdown.css {"top":  dd_top + "px", "left": dd_left + "px"}
     @results_showing = true
 
     @search_field.focus()
@@ -546,7 +546,7 @@ class Chosen extends AbstractChosen
 
       @search_field.css({'width': w + 'px'})
 
-      dd_top = @container.height()
+      dd_top = @container.height() + @container.position().top
       @dropdown.css({"top":  dd_top + "px"})
   
   generate_random_id: ->
